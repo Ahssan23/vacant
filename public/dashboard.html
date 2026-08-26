@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Properties Dashboard</title>
+    <link rel="stylesheet" href="/dashboard.css">
+</head>
+<body>
+    <header class="navbar">
+        <h2>Property Portal</h2>
+        <button id="logout-btn" class="btn-logout">Logout</button>
+    </header>
+
+    <main class="content">
+        <div class="header-section" style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h1>Available Properties</h1>
+                <p>Manage and view your listed assets below.</p>
+            </div>
+            <!-- Modal Trigger Button -->
+            <button id="open-modal-btn" class="btn-primary">+ Add Property</button>
+        </div>
+
+        <!-- Container for dynamically rendered properties -->
+        <div id="properties-container" class="grid-container">
+            <p class="loading-text">Loading properties...</p>
+        </div>
+    </main>
+
+    <!-- Add Property Modal -->
+    <div id="property-modal" class="modal hidden">
+        <div class="modal-content">
+            <span id="close-modal-btn" class="close-btn">&times;</span>
+            <h2>Add New Property</h2>
+            <form id="add-property-form">
+                <div class="field">
+                    <label for="title">Title / Name *</label>
+                    <input type="text" id="title" required placeholder="e.g. 5.0 Acres in Hudspeth County">
+                </div>
+                <div class="field">
+                    <label for="location">Location *</label>
+                    <input type="text" id="location" required placeholder="e.g. Hudspeth County, TX">
+                </div>
+            
+                <div class="field">
+                    <label for="price">Price ($) *</label>
+                    <input type="number" id="price" required placeholder="e.g. 14200">
+                </div>
+        
+                <div class="field">
+                    <label for="description">Description</label>
+                    <input type="text" id="description" placeholder="e.g. Prime agricultural land">
+                </div>
+                <button type="submit" class="btn-primary btn-full">Submit Property</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Script loaded at root body level -->
+    <script src="/dashboard.js" type="module"></script>
+</body>
+</html>
