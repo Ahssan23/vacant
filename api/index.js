@@ -1,20 +1,16 @@
 import express from "express";
 import path from "path";
-import { fileURLToPath } from "url";
 import pool from "../config/db.js";
 import accept from "../routes/accept.js";
 import login from "../routes/login.js";
 import dashboard from "../routes/dashboard.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 const app = express();
 
 app.use(express.json());
 
-// Point directly to the root public folder
-const publicPath = path.resolve(__dirname, "../public");
+// Points cleanly to root /public folder in Vercel container
+const publicPath = path.join(process.cwd(), "public");
 
 // Serve static assets (CSS, JS)
 app.use(express.static(publicPath));
