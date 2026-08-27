@@ -73,10 +73,7 @@ function renderInventory(properties, container) {
   container.innerHTML = "";
 
   if (!properties || properties.length === 0) {
-    container.innerHTML = `
-      <div class="loading-state">
-        <p>No parcels match your current search query.</p>
-      </div>`;
+    container.innerHTML = `<div class="loading-state"><p>No parcels match your current search query.</p></div>`;
     return;
   }
 
@@ -84,29 +81,36 @@ function renderInventory(properties, container) {
     const row = document.createElement("article");
     row.className = "inventory-row";
 
-    // Standardize backend data fields
     const title = item.title || item.name || "Vacant Land Parcel";
     const location = item.location || item.address || "USA Location";
     const priceVal = item.price ? Number(item.price) : 0;
     const priceFormatted = priceVal > 0 ? `$${priceVal.toLocaleString()}` : "Contact for Price";
-    const description = item.description || item.desc || "Direct wholesale opportunity available for immediate contract assignment or cash purchase.";
+    const description = item.description || item.desc || "Direct wholesale opportunity available.";
 
-    // Extract state badge if state is present in location string
     const locParts = location.split(",");
     const stateBadge = locParts.length > 1 ? locParts[locParts.length - 1].trim().substring(0, 2).toUpperCase() : "USA";
 
+    // Build image preview strip for main landing page
+    const imagesList = Array.isArray(item.images) ? item.images : [];
+    const mainImage = imagesList[0] 
+      ? `<img src="${imagesList[0]}" alt="${title}" style="width:120px; height:80px; object-fit:cover; border-radius:6px; margin-right:12px;">` 
+      : '';
+
     row.innerHTML = `
-      <div class="inv-col inv-info">
-        <h3>
-          ${title}
-          <span class="badge">${stateBadge}</span>
-        </h3>
-        <p class="inv-loc">
-          <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none">
-            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
-          </svg>
-          ${location}
-        </p>
+      <div class="inv-col inv-info" style="display:flex; align-items:center;">
+        ${mainImage}
+        <div>
+          <h3>
+            ${title}
+            <span class="badge">${stateBadge}</span>
+          </h3>
+          <p class="inv-loc">
+            <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+            </svg>
+            ${location}
+          </p>
+        </div>
       </div>
 
       <div class="inv-col inv-desc">
@@ -115,7 +119,7 @@ function renderInventory(properties, container) {
 
       <div class="inv-col inv-action">
         <div class="price">${priceFormatted}</div>
-        <a href="mailto:USAVACANTLANDDEALS@GMAIL.COM?subject=Inquiry for ${encodeURIComponent(title)} - ${encodeURIComponent(location)}" class="btn-sm">
+        <a href="mailto:USAVACANTLANDDEALS@GMAIL.COM?subject=Inquiry for ${encodeURIComponent(title)}" class="btn-sm">
           INQUIRE / LOCK DEAL &rarr;
         </a>
       </div>

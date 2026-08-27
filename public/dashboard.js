@@ -156,4 +156,91 @@ addForm?.addEventListener('submit', async (e) => {
   }
 });
 
+
+
+// POST: Add New Property
+addForm?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const formData = new FormData();
+  formData.append('title', document.querySelector('#title').value);
+  formData.append('location', document.querySelector('#location').value);
+  formData.append('price', parseFloat(document.querySelector('#price').value));
+  formData.append('description', document.querySelector('#description').value);
+
+  const fileInput = document.querySelector('#images');
+  if (fileInput.files.length > 10) {
+    alert('You can upload a maximum of 10 images.');
+    return;
+  }
+
+  for (let i = 0; i < fileInput.files.length; i++) {
+    formData.append('images', fileInput.files[i]);
+  }
+
+  try {
+    const res = await fetch('/api/dashboard/post-data', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+        // Do NOT set 'Content-Type' header when sending FormData
+      },
+      body: formData
+    });
+
+    if (res.status === 401 || res.status === 403) {
+      localStorage.removeItem('token');
+      window.location.href = '/login';
+      return;
+    }
+
+    const result = await res.json();
+
+    if (res.ok && result.success) {
+      addForm.reset();
+      modal.classList.add('hidden');
+      renderDashboard();
+    } else {
+      alert(result.message || 'Failed to insert property.');
+    }
+  } catch (error) {
+    console.error('Error submitting POST request:', error);
+  }
+});
+
+// Display properties with images
+function displayProperties(properties) {
+  container.innerHTML = '';
+
+  if (properties.length === 0) {
+    container.innerHTML = '<p>No properties available.</p>';
+    return;
+  }
+
+  properties.forEach((item) => {
+    const card = document.createElement('div');
+    card.className = 'property-card';
+
+    // Render uploaded image gallery if present
+    const imagesHtml = Array.isArray(item.images) && item.images.length > 0
+      ? `<div class="image-gallery" style="display:flex; gap:8px; overflow-x:auto; margin:10px 0;">
+           ${item.images.map(url => `<img src="${url}" style="width:80px; height:60px; object-fit:cover; border-radius:4px;" />`).join('')}
+         </div>`
+      : '';
+
+    card.innerHTML = `
+      <h3 class="property-title">${item.title || item.name || 'Property'}</h3>
+      <div class="property-price">$${item.price ? Number(item.price).toLocaleString() : 'N/A'}</div>
+      <p class="property-details"><strong>Location:</strong> ${item.location || item.address || 'No location provided'}</p>
+      ${item.description ? `<p class="property-details"><strong>Description:</strong> ${item.description}</p>` : ''}
+      ${imagesHtml}
+      <button class="btn-delete" data-id="${item.id}">Delete</button>
+    `;
+
+    const deleteBtn = card.querySelector('.btn-delete');
+    deleteBtn.addEventListener('click', () => deleteProperty(item.id));
+
+    container.appendChild(card);
+  });
+}
 renderDashboard();
