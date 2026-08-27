@@ -55,6 +55,7 @@ async function renderDashboard() {
 }
 
 // Render properties with Cloudinary images & Delete button
+// Updated displayProperties function with smooth image slider
 function displayProperties(properties) {
   container.innerHTML = '';
 
@@ -67,24 +68,43 @@ function displayProperties(properties) {
     const card = document.createElement('div');
     card.className = 'property-card';
 
-    // Render image gallery if available
-    const imagesHtml = Array.isArray(item.images) && item.images.length > 0
-      ? `<div class="image-gallery" style="display:flex; gap:8px; overflow-x:auto; margin:10px 0;">
-           ${item.images.map(url => `<img src="${url}" style="width:80px; height:60px; object-fit:cover; border-radius:4px;" />`).join('')}
+    // Normalize images: ensure it's an array even if backend sent a single string
+    let imageList = [];
+    if (Array.isArray(item.images)) {
+      imageList = item.images;
+    } else if (typeof item.images === 'string' && item.images.trim() !== '') {
+      imageList = [item.images];
+    }
+
+    // Render large scrollable slider if images exist
+    const imagesHtml = imageList.length > 0
+      ? `<div class="property-slider-container">
+           <div class="property-slider">
+             ${imageList.map((url, idx) => `
+               <div class="slide-item">
+                 <img src="${url}" alt="Property Image ${idx + 1}" loading="lazy" />
+                 ${imageList.length > 1 ? `<span class="badge">${idx + 1}/${imageList.length}</span>` : ''}
+               </div>
+             `).join('')}
+           </div>
          </div>`
       : '';
 
     card.innerHTML = `
-      <h3 class="property-title">${item.title || item.name || 'Property'}</h3>
-      <div class="property-price">$${item.price ? Number(item.price).toLocaleString() : 'N/A'}</div>
-      <p class="property-details"><strong>Location:</strong> ${item.location || item.address || 'No location provided'}</p>
-      ${item.description ? `<p class="property-details"><strong>Description:</strong> ${item.description}</p>` : ''}
       ${imagesHtml}
-      <button class="btn-delete" data-id="${item.id}">Delete</button>
+      <div class="card-body" style="padding: 16px;">
+        <h3 class="property-title">${item.title || item.name || 'Property'}</h3>
+        <div class="property-price" style="font-size: 1.25rem; font-weight: bold; color: #2563eb; margin: 6px 0;">
+          $${item.price ? Number(item.price).toLocaleString() : 'N/A'}
+        </div>
+        <p class="property-details"><strong>Location:</strong> ${item.location || item.address || 'No location provided'}</p>
+        ${item.description ? `<p class="property-details"><strong>Description:</strong> ${item.description}</p>` : ''}
+        <button class="btn-delete" data-id="${item.id}" style="margin-top: 12px;">Delete</button>
+      </div>
     `;
 
     const deleteBtn = card.querySelector('.btn-delete');
-    deleteBtn.addEventListener('click', () => deleteProperty(item.id));
+    deleteBtn?.addEventListener('click', () => deleteProperty(item.id));
 
     container.appendChild(card);
   });
