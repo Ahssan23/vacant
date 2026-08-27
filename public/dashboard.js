@@ -2,7 +2,7 @@ const token = localStorage.getItem('token');
 
 // Immediate redirect if token is missing
 if (!token) {
-  window.location.href = '/dashboard';
+  window.location.href = '/login';
 }
 
 const container = document.querySelector('#properties-container');
@@ -54,11 +54,11 @@ async function renderDashboard() {
   }
 }
 
-// Display properties with Delete action button & Cloudinary images
+// Render properties with Cloudinary images & Delete button
 function displayProperties(properties) {
   container.innerHTML = '';
 
-  if (properties.length === 0) {
+  if (!properties || properties.length === 0) {
     container.innerHTML = '<p>No properties available.</p>';
     return;
   }
@@ -67,7 +67,7 @@ function displayProperties(properties) {
     const card = document.createElement('div');
     card.className = 'property-card';
 
-    // Render uploaded image gallery if present
+    // Render image gallery if available
     const imagesHtml = Array.isArray(item.images) && item.images.length > 0
       ? `<div class="image-gallery" style="display:flex; gap:8px; overflow-x:auto; margin:10px 0;">
            ${item.images.map(url => `<img src="${url}" style="width:80px; height:60px; object-fit:cover; border-radius:4px;" />`).join('')}
@@ -83,7 +83,6 @@ function displayProperties(properties) {
       <button class="btn-delete" data-id="${item.id}">Delete</button>
     `;
 
-    // Attach click handler for deleting this card
     const deleteBtn = card.querySelector('.btn-delete');
     deleteBtn.addEventListener('click', () => deleteProperty(item.id));
 
@@ -112,7 +111,7 @@ async function deleteProperty(id) {
     const result = await res.json();
 
     if (res.ok && result.success) {
-      renderDashboard(); // Refresh property list
+      renderDashboard();
     } else {
       alert(result.message || 'Failed to delete property.');
     }
@@ -122,7 +121,7 @@ async function deleteProperty(id) {
   }
 }
 
-// POST: Add New Property with Multi-Image FormData
+// POST: Add New Property
 addForm?.addEventListener('submit', async (e) => {
   e.preventDefault();
 
@@ -149,7 +148,6 @@ addForm?.addEventListener('submit', async (e) => {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`
-        // Do NOT set 'Content-Type' header here
       },
       body: formData
     });
@@ -165,7 +163,7 @@ addForm?.addEventListener('submit', async (e) => {
     if (res.ok && result.success) {
       addForm.reset();
       modal.classList.add('hidden');
-      renderDashboard(); // Refresh property list
+      renderDashboard();
     } else {
       alert(result.message || 'Failed to insert property.');
     }
@@ -174,4 +172,5 @@ addForm?.addEventListener('submit', async (e) => {
   }
 });
 
+// Initial load
 renderDashboard();
