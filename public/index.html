@@ -13,7 +13,19 @@
 </head>
 <body>
 
+  <!-- Announcement Bar -->
+  <div class="announcement-bar">
+    <div class="announcement-content">
+      <span class="pulse-beacon"></span>
+      <span>NATIONWIDE OFF-MARKET LAND DISPOSITIONS • DAILY DIRECT ASSIGNMENTS</span>
+    </div>
+    <div class="announcement-contact">
+      <span>Questions? Direct Desk: </span>
+      <a href="mailto:USAVACANTLANDDEALS@GMAIL.COM">USAVACANTLANDDEALS@GMAIL.COM</a>
+    </div>
+  </div>
 
+  <!-- Responsive Navigation -->
   <nav class="nav">
     <div class="nav-container">
       <a href="#" class="brand">
@@ -34,16 +46,32 @@
         <a href="#closing-process" class="nav-link">Closing Process</a>
       </div>
 
-      <a href="mailto:USAVACANTLANDDEALS@GMAIL.COM?subject=Wholesale%20Land%20Inquiry" class="nav-email">
-        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
-          <rect x="2" y="4" width="20" height="16" rx="2"/>
-          <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
-        </svg>
-        <span>EMAIL DEALS TEAM</span>
-      </a>
+      <div class="nav-actions">
+        <a href="mailto:USAVACANTLANDDEALS@GMAIL.COM?subject=Wholesale%20Land%20Inquiry" class="nav-email">
+          <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+            <rect x="2" y="4" width="20" height="16" rx="2"/>
+            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+          </svg>
+          <span>EMAIL DEALS TEAM</span>
+        </a>
+        <button class="mobile-toggle" id="mobile-toggle" aria-label="Toggle menu">
+          <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none">
+            <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Drawer Menu -->
+    <div class="mobile-menu" id="mobile-menu">
+      <a href="#inventory" class="mobile-link">Current Inventory</a>
+      <a href="#advantages" class="mobile-link">Buyer Benefits</a>
+      <a href="#closing-process" class="mobile-link">Closing Process</a>
+      <a href="mailto:USAVACANTLANDDEALS@GMAIL.COM?subject=Wholesale%20Land%20Inquiry" class="btn btn-primary btn-full">EMAIL DEALS TEAM</a>
     </div>
   </nav>
 
+  <!-- Hero Section -->
   <header class="hero">
     <div class="hero-container">
       <div class="hero-content animate-fade-up">
@@ -84,6 +112,7 @@
     </div>
   </header>
 
+  <!-- Inventory Section -->
   <section id="inventory" class="section section-bordered">
     <div class="section-container">
       <div class="section-header-split animate-fade-up delay-2">
@@ -103,7 +132,8 @@
         </div>
       </div>
       
-      <div id="inventory-list" class="inventory-list animate-fade-up delay-3">
+      <!-- Responsive Grid Container for Large Image Cards -->
+      <div id="inventory-list" class="inventory-grid animate-fade-up delay-3">
         <div class="loading-state">
           <div class="spinner"></div>
           <p>Fetching active off-market land inventory...</p>
@@ -112,6 +142,7 @@
     </div>
   </section>
 
+  <!-- Advantages Section -->
   <section id="advantages" class="section section-bordered bg-surface-alt">
     <div class="section-container">
       <div class="section-header">
@@ -137,7 +168,7 @@
               <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
             </svg>
           </div>
-          <h3>Zero Commissions or hidden Costs</h3>
+          <h3>Zero Commissions or Hidden Costs</h3>
           <p>What you see is the direct cash deal price. You pay no agent fees, no broker commissions, and no hidden desk add-ons.</p>
         </div>
 
@@ -154,6 +185,7 @@
     </div>
   </section>
 
+  <!-- Closing Process -->
   <section id="closing-process" class="section section-bordered">
     <div class="section-container">
       <div class="section-header">
@@ -187,6 +219,7 @@
     </div>
   </section>
 
+  <!-- Footer -->
   <footer class="footer">
     <div class="footer-container">
       <div class="footer-col brand-col">
