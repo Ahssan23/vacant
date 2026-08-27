@@ -199,6 +199,58 @@ body {
   outline: none;
   transition: border-color 0.2s ease;
 }
+/* Property Card Image Slider Styles */
+.property-slider-container {
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px 8px 0 0;
+  background-color: #f3f4f6;
+}
+
+.property-slider {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  /* Hide scrollbars while allowing swipe */
+  scrollbar-width: thin;
+}
+
+.property-slider::-webkit-scrollbar {
+  height: 6px;
+}
+
+.property-slider::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.slide-item {
+  flex: 0 0 100%; /* Force each image to take full card width */
+  scroll-snap-align: start;
+  position: relative;
+  height: 220px; /* Increased height for clear visibility */
+}
+
+.slide-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.slide-item .badge {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.65);
+  color: #fff;
+  font-size: 0.75rem;
+  padding: 3px 8px;
+  border-radius: 12px;
+}
 
 .field input:focus {
   border-color: var(--green-accent);
