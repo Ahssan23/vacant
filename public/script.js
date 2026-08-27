@@ -2,43 +2,62 @@
    USA Vacant Land Wholesaler - Client Engine
    ========================================================================== */
 
-// Fallback high-value land inventory tailored precisely to: title, location, price, description
+// Fallback high-resolution landscape land imagery with property items
 const MOCK_PROPERTIES = [
   {
     title: "10.5 Acre High-Desert Homestead",
     location: "Coconino County, Arizona",
     price: 14900,
-    description: "Off-grid recreational land with dirt road access, stunning mountain views, and no HOA restrictions. Ideal for camping, RVing, or building a solar homestead."
+    description: "Off-grid recreational land with dirt road access, stunning mountain views, and no HOA restrictions. Ideal for camping, RVing, or building a solar homestead.",
+    images: ["https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80"]
   },
   {
     title: "5.2 Acre Timber & Cabin Site",
     location: "Costilla County, Colorado",
     price: 8400,
-    description: "Wooded mountain parcel located minutes from public hunting grounds. Clear legal access with flat building envelope ready for off-grid cabin installation."
+    description: "Wooded mountain parcel located minutes from public hunting grounds. Clear legal access with flat building envelope ready for off-grid cabin installation.",
+    images: ["https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1200&q=80"]
   },
   {
     title: "2.1 Acre Infill Residential Lot",
     location: "Marion County, Florida",
     price: 21900,
-    description: "Zoned R-1 for single-family residential construction. Electric power available at street line with paved road frontage in a growing neighborhood."
+    description: "Zoned R-1 for single-family residential construction. Electric power available at street line with paved road frontage in a growing neighborhood.",
+    images: ["https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80"]
   },
   {
     title: "40.0 Acre Ranch & Recreation Tract",
     location: "Elko County, Nevada",
     price: 24500,
-    description: "Extensive acreage parcel perfect for livestock, hunting camp, or long-term land banking. Features legal recorded easement access."
+    description: "Extensive acreage parcel perfect for livestock, hunting camp, or long-term land banking. Features legal recorded easement access.",
+    images: ["https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=1200&q=80"]
   }
 ];
 
 let allProperties = [];
 
 document.addEventListener("DOMContentLoaded", () => {
+  initMobileNav();
   initSearch();
   fetchProperties();
 });
 
 /**
- * Fetch land deals from backend endpoint or fallback to mock inventory
+ * Mobile Navigation Menu Handler
+ */
+function initMobileNav() {
+  const toggleBtn = document.getElementById("mobile-toggle");
+  const menu = document.getElementById("mobile-menu");
+
+  if (toggleBtn && menu) {
+    toggleBtn.addEventListener("click", () => {
+      menu.classList.toggle("active");
+    });
+  }
+}
+
+/**
+ * Fetch land deals from API or load rich fallbacks
  */
 async function fetchProperties() {
   const container = document.getElementById("inventory-list");
@@ -47,7 +66,7 @@ async function fetchProperties() {
     const res = await fetch("/api/dashboard/fetch-data", { method: "GET" });
 
     if (!res.ok) {
-      throw new Error(`Server returned status ${res.status}`);
+      throw new Error(`Server status ${res.status}`);
     }
 
     const result = await res.json();
@@ -59,7 +78,7 @@ async function fetchProperties() {
       allProperties = MOCK_PROPERTIES;
     }
   } catch (error) {
-    console.warn("Backend API offline. Displaying fallback portfolio.", error);
+    console.warn("Backend API offline. Loading fallback portfolio.", error);
     allProperties = MOCK_PROPERTIES;
   }
 
@@ -67,70 +86,70 @@ async function fetchProperties() {
 }
 
 /**
- * Render text-based property rows into DOM
+ * Render property card grid with high-resolution images
  */
 function renderInventory(properties, container) {
   container.innerHTML = "";
 
   if (!properties || properties.length === 0) {
-    container.innerHTML = `<div class="loading-state"><p>No parcels match your current search query.</p></div>`;
+    container.innerHTML = `<div class="loading-state"><p>No parcels match your search criteria.</p></div>`;
     return;
   }
 
-  properties.forEach((item) => {
-    const row = document.createElement("article");
-    row.className = "inventory-row";
+  properties.forEach((item, index) => {
+    const card = document.createElement("article");
+    card.className = "property-card";
 
     const title = item.title || item.name || "Vacant Land Parcel";
     const location = item.location || item.address || "USA Location";
     const priceVal = item.price ? Number(item.price) : 0;
-    const priceFormatted = priceVal > 0 ? `$${priceVal.toLocaleString()}` : "Contact for Price";
-    const description = item.description || item.desc || "Direct wholesale opportunity available.";
+    const priceFormatted = priceVal > 0 ? `$${priceVal.toLocaleString()}` : "Inquire";
+    const description = item.description || item.desc || "Direct wholesale land contract ready for immediate assignment.";
 
     const locParts = location.split(",");
     const stateBadge = locParts.length > 1 ? locParts[locParts.length - 1].trim().substring(0, 2).toUpperCase() : "USA";
 
-    // Build image preview strip for main landing page
+    // Extract dynamic image or provide a reliable high-res land photo backup
     const imagesList = Array.isArray(item.images) ? item.images : [];
-    const mainImage = imagesList[0] 
-      ? `<img src="${imagesList[0]}" alt="${title}" style="width:120px; height:80px; object-fit:cover; border-radius:6px; margin-right:12px;">` 
-      : '';
+    const fallbackImgs = [
+      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=1200&q=80"
+    ];
+    const imageSrc = imagesList[0] || fallbackImgs[index % fallbackImgs.length];
 
-    row.innerHTML = `
-      <div class="inv-col inv-info" style="display:flex; align-items:center;">
-        ${mainImage}
-        <div>
-          <h3>
-            ${title}
-            <span class="badge">${stateBadge}</span>
-          </h3>
-          <p class="inv-loc">
-            <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none">
-              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
-            </svg>
-            ${location}
-          </p>
+    card.innerHTML = `
+      <div class="card-media">
+        <img src="${imageSrc}" alt="${title}" loading="lazy">
+        <span class="card-tag">${stateBadge}</span>
+      </div>
+      
+      <div class="card-body">
+        <h3>${title}</h3>
+        <div class="card-location">
+          <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+          </svg>
+          ${location}
         </div>
-      </div>
-
-      <div class="inv-col inv-desc">
-        <p>${description}</p>
-      </div>
-
-      <div class="inv-col inv-action">
-        <div class="price">${priceFormatted}</div>
-        <a href="mailto:USAVACANTLANDDEALS@GMAIL.COM?subject=Inquiry for ${encodeURIComponent(title)}" class="btn-sm">
-          INQUIRE / LOCK DEAL &rarr;
-        </a>
+        <p class="card-desc">${description}</p>
+        
+        <div class="card-footer">
+          <div class="card-price">${priceFormatted}</div>
+          <a href="mailto:USAVACANTLANDDEALS@GMAIL.COM?subject=Inquiry for ${encodeURIComponent(title)}" class="btn-card">
+            LOCK DEAL &rarr;
+          </a>
+        </div>
       </div>
     `;
 
-    container.appendChild(row);
+    container.appendChild(card);
   });
 }
 
 /**
- * Search functionality
+ * Filter properties search input
  */
 function initSearch() {
   const searchInput = document.getElementById("inventory-search");
