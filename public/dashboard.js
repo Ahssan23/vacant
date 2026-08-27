@@ -14,11 +14,22 @@ const openModalBtn = document.querySelector('#open-modal-btn');
 const closeModalBtn = document.querySelector('#close-modal-btn');
 const addForm = document.querySelector('#add-property-form');
 
+// Lightbox Elements
+const lightboxModal = document.querySelector('#lightbox-modal');
+const lightboxImg = document.querySelector('#lightbox-img');
+const lightboxCounter = document.querySelector('#lightbox-counter');
+const lightboxClose = document.querySelector('#lightbox-close');
+const lightboxPrev = document.querySelector('#lightbox-prev');
+const lightboxNext = document.querySelector('#lightbox-next');
+
+let activeGallery = [];
+let activeIndex = 0;
+
 // Open/Close Modal Handlers
 openModalBtn?.addEventListener('click', () => modal.classList.remove('hidden'));
 closeModalBtn?.addEventListener('click', () => modal.classList.add('hidden'));
 
-// Logout function
+// Logout handler
 logoutBtn?.addEventListener('click', () => {
   localStorage.removeItem('token');
   window.location.href = '/';
@@ -54,8 +65,7 @@ async function renderDashboard() {
   }
 }
 
-// Render properties with Cloudinary images & Delete button
-// Updated displayProperties function with smooth image slider
+// Display properties with vertical stack & full image slider
 function displayProperties(properties) {
   container.innerHTML = '';
 
@@ -68,7 +78,7 @@ function displayProperties(properties) {
     const card = document.createElement('div');
     card.className = 'property-card';
 
-    // Normalize images: ensure it's an array even if backend sent a single string
+    // Normalize images: ensure array format
     let imageList = [];
     if (Array.isArray(item.images)) {
       imageList = item.images;
@@ -76,12 +86,12 @@ function displayProperties(properties) {
       imageList = [item.images];
     }
 
-    // Render large scrollable slider if images exist
+    // Render enlarged image carousel at the top of the card
     const imagesHtml = imageList.length > 0
       ? `<div class="property-slider-container">
            <div class="property-slider">
              ${imageList.map((url, idx) => `
-               <div class="slide-item">
+               <div class="slide-item" data-index="${idx}">
                  <img src="${url}" alt="Property Image ${idx + 1}" loading="lazy" />
                  ${imageList.length > 1 ? `<span class="badge">${idx + 1}/${imageList.length}</span>` : ''}
                </div>
@@ -90,25 +100,62 @@ function displayProperties(properties) {
          </div>`
       : '';
 
+    // Property details stacked directly below the image gallery
     card.innerHTML = `
       ${imagesHtml}
-      <div class="card-body" style="padding: 16px;">
+      <div class="card-body">
         <h3 class="property-title">${item.title || item.name || 'Property'}</h3>
-        <div class="property-price" style="font-size: 1.25rem; font-weight: bold; color: #2563eb; margin: 6px 0;">
+        <div class="property-price">
           $${item.price ? Number(item.price).toLocaleString() : 'N/A'}
         </div>
         <p class="property-details"><strong>Location:</strong> ${item.location || item.address || 'No location provided'}</p>
         ${item.description ? `<p class="property-details"><strong>Description:</strong> ${item.description}</p>` : ''}
-        <button class="btn-delete" data-id="${item.id}" style="margin-top: 12px;">Delete</button>
+        <button class="btn-delete" data-id="${item.id}">Delete Property</button>
       </div>
     `;
 
+    // Attach Lightbox click handlers to images inside this card
+    const slideItems = card.querySelectorAll('.slide-item');
+    slideItems.forEach((slide) => {
+      slide.addEventListener('click', () => {
+        const clickedIdx = parseInt(slide.getAttribute('data-index'), 10);
+        openLightbox(imageList, clickedIdx);
+      });
+    });
+
+    // Delete handler
     const deleteBtn = card.querySelector('.btn-delete');
     deleteBtn?.addEventListener('click', () => deleteProperty(item.id));
 
     container.appendChild(card);
   });
 }
+
+// Lightbox Navigation Functions
+function openLightbox(images, index) {
+  activeGallery = images;
+  activeIndex = index;
+  updateLightboxImage();
+  lightboxModal.classList.remove('hidden');
+}
+
+function updateLightboxImage() {
+  if (activeGallery.length === 0) return;
+  lightboxImg.src = activeGallery[activeIndex];
+  lightboxCounter.textContent = `${activeIndex + 1} / ${activeGallery.length}`;
+}
+
+lightboxClose?.addEventListener('click', () => lightboxModal.classList.add('hidden'));
+
+lightboxPrev?.addEventListener('click', () => {
+  activeIndex = (activeIndex - 1 + activeGallery.length) % activeGallery.length;
+  updateLightboxImage();
+});
+
+lightboxNext?.addEventListener('click', () => {
+  activeIndex = (activeIndex + 1) % activeGallery.length;
+  updateLightboxImage();
+});
 
 // DELETE: Remove Property
 async function deleteProperty(id) {
