@@ -54,7 +54,7 @@ async function renderDashboard() {
   }
 }
 
-// Display properties with Delete action button
+// Display properties with Delete action button & Cloudinary images
 function displayProperties(properties) {
   container.innerHTML = '';
 
@@ -67,11 +67,19 @@ function displayProperties(properties) {
     const card = document.createElement('div');
     card.className = 'property-card';
 
+    // Render uploaded image gallery if present
+    const imagesHtml = Array.isArray(item.images) && item.images.length > 0
+      ? `<div class="image-gallery" style="display:flex; gap:8px; overflow-x:auto; margin:10px 0;">
+           ${item.images.map(url => `<img src="${url}" style="width:80px; height:60px; object-fit:cover; border-radius:4px;" />`).join('')}
+         </div>`
+      : '';
+
     card.innerHTML = `
       <h3 class="property-title">${item.title || item.name || 'Property'}</h3>
       <div class="property-price">$${item.price ? Number(item.price).toLocaleString() : 'N/A'}</div>
       <p class="property-details"><strong>Location:</strong> ${item.location || item.address || 'No location provided'}</p>
       ${item.description ? `<p class="property-details"><strong>Description:</strong> ${item.description}</p>` : ''}
+      ${imagesHtml}
       <button class="btn-delete" data-id="${item.id}">Delete</button>
     `;
 
@@ -114,51 +122,7 @@ async function deleteProperty(id) {
   }
 }
 
-// POST: Add New Property
-addForm?.addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const payload = {
-    title: document.querySelector('#title').value,
-    location: document.querySelector('#location').value,
-    price: parseFloat(document.querySelector('#price').value),
-    description: document.querySelector('#description').value,
-  };
-
-  try {
-    const res = await fetch('/api/dashboard/post-data', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify(payload)
-    });
-
-    if (res.status === 401 || res.status === 403) {
-      localStorage.removeItem('token');
-      window.location.href = '/login';
-      return;
-    }
-
-    const result = await res.json();
-
-    if (res.ok) {
-      addForm.reset();
-      modal.classList.add('hidden');
-      renderDashboard(); // Refresh property list
-    } else {
-      alert(result.message || 'Failed to insert property.');
-    }
-
-  } catch (error) {
-    console.error('Error submitting POST request:', error);
-  }
-});
-
-
-
-// POST: Add New Property
+// POST: Add New Property with Multi-Image FormData
 addForm?.addEventListener('submit', async (e) => {
   e.preventDefault();
 
@@ -169,13 +133,15 @@ addForm?.addEventListener('submit', async (e) => {
   formData.append('description', document.querySelector('#description').value);
 
   const fileInput = document.querySelector('#images');
-  if (fileInput.files.length > 10) {
-    alert('You can upload a maximum of 10 images.');
-    return;
-  }
+  if (fileInput && fileInput.files.length > 0) {
+    if (fileInput.files.length > 10) {
+      alert('You can upload a maximum of 10 images.');
+      return;
+    }
 
-  for (let i = 0; i < fileInput.files.length; i++) {
-    formData.append('images', fileInput.files[i]);
+    for (let i = 0; i < fileInput.files.length; i++) {
+      formData.append('images', fileInput.files[i]);
+    }
   }
 
   try {
@@ -183,7 +149,7 @@ addForm?.addEventListener('submit', async (e) => {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`
-        // Do NOT set 'Content-Type' header when sending FormData
+        // Do NOT set 'Content-Type' header here
       },
       body: formData
     });
@@ -199,7 +165,7 @@ addForm?.addEventListener('submit', async (e) => {
     if (res.ok && result.success) {
       addForm.reset();
       modal.classList.add('hidden');
-      renderDashboard();
+      renderDashboard(); // Refresh property list
     } else {
       alert(result.message || 'Failed to insert property.');
     }
@@ -208,39 +174,4 @@ addForm?.addEventListener('submit', async (e) => {
   }
 });
 
-// Display properties with images
-function displayProperties(properties) {
-  container.innerHTML = '';
-
-  if (properties.length === 0) {
-    container.innerHTML = '<p>No properties available.</p>';
-    return;
-  }
-
-  properties.forEach((item) => {
-    const card = document.createElement('div');
-    card.className = 'property-card';
-
-    // Render uploaded image gallery if present
-    const imagesHtml = Array.isArray(item.images) && item.images.length > 0
-      ? `<div class="image-gallery" style="display:flex; gap:8px; overflow-x:auto; margin:10px 0;">
-           ${item.images.map(url => `<img src="${url}" style="width:80px; height:60px; object-fit:cover; border-radius:4px;" />`).join('')}
-         </div>`
-      : '';
-
-    card.innerHTML = `
-      <h3 class="property-title">${item.title || item.name || 'Property'}</h3>
-      <div class="property-price">$${item.price ? Number(item.price).toLocaleString() : 'N/A'}</div>
-      <p class="property-details"><strong>Location:</strong> ${item.location || item.address || 'No location provided'}</p>
-      ${item.description ? `<p class="property-details"><strong>Description:</strong> ${item.description}</p>` : ''}
-      ${imagesHtml}
-      <button class="btn-delete" data-id="${item.id}">Delete</button>
-    `;
-
-    const deleteBtn = card.querySelector('.btn-delete');
-    deleteBtn.addEventListener('click', () => deleteProperty(item.id));
-
-    container.appendChild(card);
-  });
-}
 renderDashboard();
