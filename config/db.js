@@ -1,15 +1,16 @@
 import pg from 'pg';
 const { Pool } = pg;
 
-if (!process.env.DB_HOST) {
-  console.error("FATAL: DATABASE_URL environment variable is missing.");
-}
-
+// Parse or supply explicit credentials directly to the pool config object
 const pool = new Pool({
-  connectionString: process.env.DB_HOST,
-  ssl: process.env.NODE_ENV === 'production' 
-    ? { rejectUnauthorized: false } 
-    : false,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  host: 'postgresql-anonymous23.alwaysdata.net',
+  port: 5432,
+  database: process.env.DB_NAME,
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
 export default pool;
