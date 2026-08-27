@@ -33,7 +33,7 @@
         <div class="modal-content">
             <span id="close-modal-btn" class="close-btn">&times;</span>
             <h2>Add New Property</h2>
-            <form id="add-property-form">
+            <form id="add-property-form" enctype="multipart/form-data">
                 <div class="field">
                     <label for="title">Title / Name *</label>
                     <input type="text" id="title" required placeholder="e.g. 5.0 Acres in Hudspeth County">
@@ -52,15 +52,17 @@
                     <label for="description">Description</label>
                     <input type="text" id="description" placeholder="e.g. Prime agricultural land">
                 </div>
+
+                <!-- Moved image upload field inside the form -->
+                <div class="field">
+                    <label for="images">Property Images (Max 10)</label>
+                    <input type="file" id="images" multiple accept="image/*">
+                </div>
+
                 <button type="submit" class="btn-primary btn-full">Submit Property</button>
             </form>
         </div>
     </div>
-
-    <div class="field">
-    <label for="images">Property Images (Max 10) *</label>
-    <input type="file" id="images" multiple accept="image/*">
-</div>
 
     <!-- Script loaded at root body level -->
     <script src="/dashboard.js" type="module"></script>
