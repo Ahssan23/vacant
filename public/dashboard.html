@@ -53,7 +53,6 @@
                     <input type="text" id="description" placeholder="e.g. Prime agricultural land">
                 </div>
 
-                <!-- Moved image upload field inside the form -->
                 <div class="field">
                     <label for="images">Property Images (Max 10)</label>
                     <input type="file" id="images" multiple accept="image/*">
@@ -62,6 +61,17 @@
                 <button type="submit" class="btn-primary btn-full">Submit Property</button>
             </form>
         </div>
+    </div>
+
+    <!-- Fullscreen Image Gallery Lightbox -->
+    <div id="lightbox-modal" class="lightbox modal hidden">
+        <span id="lightbox-close" class="close-btn">&times;</span>
+        <button id="lightbox-prev" class="lightbox-nav">&lt;</button>
+        <div class="lightbox-content">
+            <img id="lightbox-img" src="" alt="Full view image">
+            <div id="lightbox-counter" class="lightbox-counter">1 / 1</div>
+        </div>
+        <button id="lightbox-next" class="lightbox-nav">&gt;</button>
     </div>
 
     <!-- Script loaded at root body level -->
