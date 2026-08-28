@@ -1,32 +1,41 @@
-
 const MOCK_PROPERTIES = [
   {
     title: "10.5 Acre High-Desert Homestead",
     location: "Coconino County, Arizona",
     price: 14900,
     description: "Off-grid recreational land with dirt road access, stunning mountain views, and no HOA restrictions. Ideal for camping, RVing, or building a solar homestead.",
-    images: ["https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80"]
+    images: [
+      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1200&q=80"
+    ]
   },
   {
     title: "5.2 Acre Timber & Cabin Site",
     location: "Costilla County, Colorado",
     price: 8400,
     description: "Wooded mountain parcel located minutes from public hunting grounds. Clear legal access with flat building envelope ready for off-grid cabin installation.",
-    images: ["https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1200&q=80"]
+    images: [
+      "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80"
+    ]
   },
   {
     title: "2.1 Acre Infill Residential Lot",
     location: "Marion County, Florida",
     price: 21900,
     description: "Zoned R-1 for single-family residential construction. Electric power available at street line with paved road frontage in a growing neighborhood.",
-    images: ["https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80"]
+    images: [
+      "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80"
+    ]
   },
   {
     title: "40.0 Acre Ranch & Recreation Tract",
     location: "Elko County, Nevada",
     price: 24500,
     description: "Extensive acreage parcel perfect for livestock, hunting camp, or long-term land banking. Features legal recorded easement access.",
-    images: ["https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=1200&q=80"]
+    images: [
+      "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=1200&q=80"
+    ]
   }
 ];
 
@@ -38,9 +47,6 @@ document.addEventListener("DOMContentLoaded", () => {
   fetchProperties();
 });
 
-/**
- * Mobile Navigation Menu Handler
- */
 function initMobileNav() {
   const toggleBtn = document.getElementById("mobile-toggle");
   const menu = document.getElementById("mobile-menu");
@@ -51,7 +57,6 @@ function initMobileNav() {
       toggleBtn.setAttribute("aria-expanded", isActive);
     });
 
-    // Close menu when clicking outside
     document.addEventListener("click", (e) => {
       if (!toggleBtn.contains(e.target) && !menu.contains(e.target)) {
         menu.classList.remove("active");
@@ -61,9 +66,6 @@ function initMobileNav() {
   }
 }
 
-/**
- * Search Handler (Client-side filtering with Debounce)
- */
 function initSearch() {
   const searchInput = document.getElementById("inventory-search");
   const container = document.getElementById("inventory-list");
@@ -87,9 +89,6 @@ function initSearch() {
   searchInput.addEventListener("input", handleSearch);
 }
 
-/**
- * Utility: Debounce function to optimize search input processing
- */
 function debounce(func, wait) {
   let timeout;
   return function (...args) {
@@ -97,7 +96,6 @@ function debounce(func, wait) {
     timeout = setTimeout(() => func.apply(this, args), wait);
   };
 }
-
 
 async function fetchProperties() {
   const container = document.getElementById("inventory-list");
@@ -125,9 +123,6 @@ async function fetchProperties() {
   renderInventory(allProperties, container);
 }
 
-/**
- * Render property card grid with high-resolution images
- */
 function renderInventory(properties, container) {
   if (!container) return;
   container.innerHTML = "";
@@ -155,25 +150,44 @@ function renderInventory(properties, container) {
     const locParts = location.split(",");
     const stateBadge = locParts.length > 1 ? locParts[locParts.length - 1].trim().substring(0, 2).toUpperCase() : "USA";
 
-    // Extract dynamic image or provide a reliable high-res land photo backup
-    const imagesList = Array.isArray(item.images) ? item.images : [];
     const fallbackImgs = [
       "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=1200&q=80"
     ];
-    const imageSrc = imagesList[0] || fallbackImgs[index % fallbackImgs.length];
+
+    let imagesList = Array.isArray(item.images) && item.images.length > 0 
+      ? item.images 
+      : [item.image || fallbackImgs[index % fallbackImgs.length]];
 
     const emailSubject = encodeURIComponent(`Inquiry for ${title}`);
     const emailBody = encodeURIComponent(`Hello Deals Team,\n\nI am interested in acquiring the property: ${title} (${location}). Please send over details and contract terms.\n\nThank you!`);
 
-    card.innerHTML = `
+    const hasMultipleImages = imagesList.length > 1;
+
+    const mediaHtml = `
       <div class="card-media">
-        <img src="${imageSrc}" alt="${title}" loading="lazy">
+        <div class="slider-track">
+          ${imagesList.map((src) => `<img src="${src}" alt="${title}" loading="lazy">`).join("")}
+        </div>
         <span class="card-tag">${stateBadge}</span>
+        ${hasMultipleImages ? `
+          <button class="slider-btn prev" aria-label="Previous Image">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <button class="slider-btn next" aria-label="Next Image">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+          <div class="slider-dots">
+            ${imagesList.map((_, i) => `<button class="slider-dot ${i === 0 ? "active" : ""}" data-index="${i}"></button>`).join("")}
+          </div>
+        ` : ""}
       </div>
-      
+    `;
+
+    card.innerHTML = `
+      ${mediaHtml}
       <div class="card-body">
         <h3>${title}</h3>
         <div class="card-location">
@@ -183,7 +197,6 @@ function renderInventory(properties, container) {
           ${location}
         </div>
         <p class="card-desc">${description}</p>
-        
         <div class="card-footer">
           <div class="card-price">${priceFormatted}</div>
           <a href="mailto:USAVACANTLANDDEALS@GMAIL.COM?subject=${emailSubject}&body=${emailBody}" class="btn-card">
@@ -193,8 +206,45 @@ function renderInventory(properties, container) {
       </div>
     `;
 
+    if (hasMultipleImages) {
+      initCardSlider(card, imagesList.length);
+    }
+
     fragment.appendChild(card);
   });
 
   container.appendChild(fragment);
+}
+
+function initCardSlider(cardElement, totalImages) {
+  const track = cardElement.querySelector(".slider-track");
+  const prevBtn = cardElement.querySelector(".slider-btn.prev");
+  const nextBtn = cardElement.querySelector(".slider-btn.next");
+  const dots = cardElement.querySelectorAll(".slider-dot");
+
+  let currentIndex = 0;
+
+  function updateSlide(index) {
+    currentIndex = (index + totalImages) % totalImages;
+    track.style.transform = `translateX(-${currentIndex * 100}%)`;
+    dots.forEach((dot, i) => dot.classList.toggle("active", i === currentIndex));
+  }
+
+  prevBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    updateSlide(currentIndex - 1);
+  });
+
+  nextBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    updateSlide(currentIndex + 1);
+  });
+
+  dots.forEach((dot) => {
+    dot.addEventListener("click", (e) => {
+      e.preventDefault();
+      const index = parseInt(dot.getAttribute("data-index"), 10);
+      updateSlide(index);
+    });
+  });
 }
