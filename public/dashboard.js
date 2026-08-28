@@ -2,7 +2,7 @@ const token = localStorage.getItem('token');
 
 // Immediate redirect if token is missing
 if (!token) {
-  window.location.href = '/login';
+  window.location.href = '/dashboard';
 }
 
 const container = document.querySelector('#properties-container');
