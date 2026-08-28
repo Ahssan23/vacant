@@ -1,8 +1,4 @@
-/* ==========================================================================
-   USA Vacant Land Wholesaler - Client Engine
-   ========================================================================== */
 
-// Fallback high-resolution landscape land imagery with property items
 const MOCK_PROPERTIES = [
   {
     title: "10.5 Acre High-Desert Homestead",
@@ -51,14 +47,58 @@ function initMobileNav() {
 
   if (toggleBtn && menu) {
     toggleBtn.addEventListener("click", () => {
-      menu.classList.toggle("active");
+      const isActive = menu.classList.toggle("active");
+      toggleBtn.setAttribute("aria-expanded", isActive);
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener("click", (e) => {
+      if (!toggleBtn.contains(e.target) && !menu.contains(e.target)) {
+        menu.classList.remove("active");
+        toggleBtn.setAttribute("aria-expanded", "false");
+      }
     });
   }
 }
 
 /**
- * Fetch land deals from API or load rich fallbacks
+ * Search Handler (Client-side filtering with Debounce)
  */
+function initSearch() {
+  const searchInput = document.getElementById("inventory-search");
+  const container = document.getElementById("inventory-list");
+
+  if (!searchInput) return;
+
+  const handleSearch = debounce((e) => {
+    const query = e.target.value.trim().toLowerCase();
+
+    const filtered = allProperties.filter((item) => {
+      const title = (item.title || item.name || "").toLowerCase();
+      const location = (item.location || item.address || "").toLowerCase();
+      const description = (item.description || item.desc || "").toLowerCase();
+
+      return title.includes(query) || location.includes(query) || description.includes(query);
+    });
+
+    renderInventory(filtered, container);
+  }, 200);
+
+  searchInput.addEventListener("input", handleSearch);
+}
+
+/**
+ * Utility: Debounce function to optimize search input processing
+ */
+function debounce(func, wait) {
+  let timeout;
+  return function (...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
+  };
+}
+
+
 async function fetchProperties() {
   const container = document.getElementById("inventory-list");
 
@@ -89,12 +129,18 @@ async function fetchProperties() {
  * Render property card grid with high-resolution images
  */
 function renderInventory(properties, container) {
+  if (!container) return;
   container.innerHTML = "";
 
   if (!properties || properties.length === 0) {
-    container.innerHTML = `<div class="loading-state"><p>No parcels match your search criteria.</p></div>`;
+    container.innerHTML = `
+      <div class="loading-state">
+        <p>No parcels match your search criteria.</p>
+      </div>`;
     return;
   }
+
+  const fragment = document.createDocumentFragment();
 
   properties.forEach((item, index) => {
     const card = document.createElement("article");
@@ -119,6 +165,9 @@ function renderInventory(properties, container) {
     ];
     const imageSrc = imagesList[0] || fallbackImgs[index % fallbackImgs.length];
 
+    const emailSubject = encodeURIComponent(`Inquiry for ${title}`);
+    const emailBody = encodeURIComponent(`Hello Deals Team,\n\nI am interested in acquiring the property: ${title} (${location}). Please send over details and contract terms.\n\nThank you!`);
+
     card.innerHTML = `
       <div class="card-media">
         <img src="${imageSrc}" alt="${title}" loading="lazy">
@@ -137,34 +186,15 @@ function renderInventory(properties, container) {
         
         <div class="card-footer">
           <div class="card-price">${priceFormatted}</div>
-          <a href="mailto:USAVACANTLANDDEALS@GMAIL.COM?subject=Inquiry for ${encodeURIComponent(title)}" class="btn-card">
-            LOCK DEAL &rarr;
+          <a href="mailto:USAVACANTLANDDEALS@GMAIL.COM?subject=${emailSubject}&body=${emailBody}" class="btn-card">
+            LOCK DEAL
           </a>
         </div>
       </div>
     `;
 
-    container.appendChild(card);
+    fragment.appendChild(card);
   });
-}
 
-/**
- * Filter properties search input
- */
-function initSearch() {
-  const searchInput = document.getElementById("inventory-search");
-  const container = document.getElementById("inventory-list");
-
-  if (searchInput) {
-    searchInput.addEventListener("input", (e) => {
-      const query = e.target.value.toLowerCase();
-      
-      const filtered = allProperties.filter((item) => {
-        const text = `${item.title || ''} ${item.location || ''} ${item.description || ''}`.toLowerCase();
-        return text.includes(query);
-      });
-
-      renderInventory(filtered, container);
-    });
-  }
+  container.appendChild(fragment);
 }
